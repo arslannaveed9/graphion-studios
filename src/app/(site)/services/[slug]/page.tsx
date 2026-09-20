@@ -1,15 +1,22 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 import { InquiryForm } from "@/components/site/inquiry-form";
 import { Price } from "@/components/site/homepage";
 import { RichText } from "@/components/site/rich-text";
 import { Section, SectionIntro } from "@/components/site/section";
 import { CtaButton } from "@/components/site/cta-button";
+import { TechCarousel } from "@/components/motion/tech-carousel";
+import {
+  CatalogBreadcrumb,
+  CatalogHero,
+  FaqList,
+  FeatureGrid,
+  visiblePlans,
+} from "@/components/site/catalog";
 import { getServiceBySlug, getTestimonials } from "@/lib/queries";
 import { buildMetadata, jsonLd } from "@/lib/seo";
 import { createCaptchaChallenge } from "@/lib/captcha";
-import { enabledPlanNames } from "@/lib/format";
+import { enabledPlanNames, planPriceRange } from "@/lib/format";
 import { safe } from "@/lib/safe";
 
 export async function generateMetadata({
@@ -40,66 +47,88 @@ export default async function ServiceDetailPage({
   const { package: selectedPackage } = await searchParams;
   const [service, testimonials] = await Promise.all([
     getServiceBySlug(slug),
-    safe(getTestimonials, []),
+    safe(() => getTestimonials({ limit: 8 }), []),
   ]);
   if (!service) notFound();
-  const packages = enabledPlanNames(service.pricingPlans);
+
+  const plans = visiblePlans(service.pricingPlans);
+  const packages = enabledPlanNames(plans);
+  const range = planPriceRange(plans);
+  const relatedIds = (service.relatedTestimonialIds || []).map((id) => String(id));
+  const quotes = relatedIds.length
+    ? testimonials.filter((item) => relatedIds.includes(String(item._id))).slice(0, 2)
+    : testimonials.slice(0, 2);
 
   const schema = {
     "@context": "https://schema.org",
     "@type": "Service",
     name: service.name,
     description: service.shortDescription,
+    image: service.heroImage,
+    offers: plans.map((plan) => ({
+      "@type": "Offer",
+      name: plan.name,
+      price: plan.price ?? undefined,
+      priceCurrency: plan.currency || "USD",
+    })),
   };
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(schema) }} />
-      <section className="border-b border-border/80">
-        <div className="mx-auto max-w-6xl px-6 py-20 md:px-8">
-          <p className="kicker">Service</p>
-          <h1 className="mt-4 max-w-3xl text-6xl">{service.name}</h1>
-          <p className="mt-6 max-w-2xl text-lg text-muted-foreground">{service.shortDescription}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
+      <CatalogHero
+        breadcrumb={<CatalogBreadcrumb href="/services" label="Services" current={service.name} />}
+        kicker="Service"
+        title={service.name}
+        description={service.shortDescription}
+        image={service.heroImage}
+        imageAlt={service.name}
+        chips={(service.technologies || []).slice(0, 5)}
+        meta={range ? <p className="text-sm font-medium">{range}</p> : null}
+        actions={
+          <>
             <CtaButton href="#enquire">{service.customProjectCta || "Start this engagement"}</CtaButton>
-          </div>
-        </div>
-      </section>
-      {service.heroImage ? (
-        <div className="relative mx-auto max-w-6xl px-6 md:px-8">
-          <div className="relative aspect-[16/8] overflow-hidden rounded-3xl border border-border">
-            <Image src={service.heroImage} alt="" fill className="object-cover" sizes="100vw" priority />
-          </div>
-        </div>
-      ) : null}
+            {plans.length ? (
+              <CtaButton href="#pricing" variant="secondary">
+                View packages
+              </CtaButton>
+            ) : null}
+          </>
+        }
+      />
 
-      <Section>
-        <RichText html={service.fullDescription} />
-        {(service.problem || service.solution) && (
-          <div className="mt-12 grid gap-8 md:grid-cols-2">
-            <div className="surface p-6">
-              <p className="kicker">Problem</p>
-              <p className="mt-3 text-muted-foreground">{service.problem}</p>
+      {service.fullDescription || service.problem || service.solution ? (
+        <Section>
+          {service.problem || service.solution ? (
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)]">
+              <div className="min-w-0">
+                <RichText html={service.fullDescription} />
+              </div>
+              <div className="grid gap-4 self-start">
+                {service.problem ? (
+                  <div className="surface p-5">
+                    <p className="kicker">Problem</p>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">{service.problem}</p>
+                  </div>
+                ) : null}
+                {service.solution ? (
+                  <div className="surface p-5">
+                    <p className="kicker">Solution</p>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">{service.solution}</p>
+                  </div>
+                ) : null}
+              </div>
             </div>
-            <div className="surface p-6">
-              <p className="kicker">Solution</p>
-              <p className="mt-3 text-muted-foreground">{service.solution}</p>
-            </div>
-          </div>
-        )}
-      </Section>
+          ) : (
+            <RichText html={service.fullDescription} />
+          )}
+        </Section>
+      ) : null}
 
       {service.features?.length ? (
         <Section>
-          <SectionIntro kicker="Features" heading="What the engagement includes." />
-          <div className="grid gap-8 md:grid-cols-3">
-            {service.features.map((item) => (
-              <div key={item.title} className="surface p-6">
-                <h3 className="text-2xl">{item.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{item.description}</p>
-              </div>
-            ))}
-          </div>
+          <SectionIntro kicker="Features" heading="What the engagement includes." compact />
+          <FeatureGrid items={service.features} />
         </Section>
       ) : null}
 
@@ -117,69 +146,88 @@ export default async function ServiceDetailPage({
         </Section>
       ) : null}
 
-      {service.technologies?.length ? (
-        <Section>
-          <p className="kicker mb-6">Technologies</p>
-          <div className="flex flex-wrap gap-2">
-            {service.technologies.map((tech) => (
-              <span key={tech} className="rounded-full border border-border bg-card px-3 py-2 text-xs font-medium">
-                {tech}
-              </span>
-            ))}
-          </div>
-        </Section>
-      ) : null}
-
       {service.process?.length ? (
         <Section>
-          <SectionIntro kicker="Process" heading="How the work moves." />
-          <ol className="grid gap-6 md:grid-cols-4">
+          <SectionIntro kicker="Process" heading="How the work moves." compact />
+          <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {service.process.map((step, i) => (
               <li key={step.title} className="surface p-5">
-                <p className="text-xs font-semibold tracking-[0.16em] text-copper">{String(i + 1).padStart(2, "0")}</p>
-                <h3 className="mt-2 text-2xl">{step.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{step.description}</p>
+                <p className="text-xs font-semibold tracking-[0.16em] text-copper">
+                  {String(i + 1).padStart(2, "0")}
+                </p>
+                <h3 className="mt-2 text-xl md:text-2xl">{step.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{step.description}</p>
               </li>
             ))}
           </ol>
         </Section>
       ) : null}
 
-      {service.pricingPlans?.filter((p) => p.isEnabled !== false).length ? (
+      {service.technologies?.length ? (
         <Section>
-          <SectionIntro kicker="Pricing" heading="Packages, not guesswork." subheading={service.pricingNotes} />
-          <div className="grid gap-4 md:grid-cols-3">
-            {service.pricingPlans
-              .filter((p) => p.isEnabled !== false)
-              .sort((a, b) => a.order - b.order)
-              .map((plan) => (
-                <Price key={String(plan._id || plan.name)} plan={plan} />
-              ))}
+          <TechCarousel
+            kicker="Stack"
+            heading="The tools this engagement actually runs on."
+            technologies={service.technologies.map((name) => ({ name }))}
+          />
+        </Section>
+      ) : null}
+
+      {service.included?.length || service.notIncluded?.length ? (
+        <Section>
+          <div className="grid gap-4 md:grid-cols-2">
+            {service.included?.length ? (
+              <div className="surface p-5">
+                <p className="kicker">Included</p>
+                <ul className="mt-4 space-y-2 text-sm leading-6">
+                  {service.included.map((item) => (
+                    <li key={item}>— {item}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+            {service.notIncluded?.length ? (
+              <div className="surface p-5">
+                <p className="kicker">Not included</p>
+                <ul className="mt-4 space-y-2 text-sm leading-6 text-muted-foreground">
+                  {service.notIncluded.map((item) => (
+                    <li key={item}>— {item}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+          </div>
+        </Section>
+      ) : null}
+
+      {plans.length ? (
+        <Section id="pricing" className="scroll-mt-24">
+          <SectionIntro kicker="Pricing" heading="Packages, not guesswork." subheading={service.pricingNotes} compact />
+          <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {plans.map((plan) => (
+              <Price key={String(plan._id || plan.name)} plan={plan} />
+            ))}
           </div>
         </Section>
       ) : null}
 
       {service.faqs?.length ? (
         <Section>
-          <SectionIntro kicker="FAQ" heading="Straight answers." />
-          {service.faqs.map((faq) => (
-            <details key={faq.question} className="surface mb-3 px-5 py-4">
-              <summary className="cursor-pointer text-xl">{faq.question}</summary>
-              <p className="mt-3 text-sm text-muted-foreground">{faq.answer}</p>
-            </details>
-          ))}
+          <SectionIntro kicker="FAQ" heading="Straight answers." compact />
+          <FaqList items={service.faqs} />
         </Section>
       ) : null}
 
-      {testimonials.length ? (
+      {quotes.length ? (
         <Section>
-          <SectionIntro kicker="Clients" heading="In their words." />
-          <div className="grid gap-8 md:grid-cols-2">
-            {testimonials.slice(0, 2).map((item) => (
+          <SectionIntro kicker="Clients" heading="In their words." compact />
+          <div className="grid gap-4 md:grid-cols-2">
+            {quotes.map((item) => (
               <blockquote key={String(item._id)} className="surface p-6">
-                <p className="text-2xl">“{item.quote}”</p>
+                <p className="text-xl leading-snug md:text-2xl">“{item.quote}”</p>
                 <footer className="mt-3 text-sm text-muted-foreground">
-                  {item.authorName}, {item.company}
+                  {item.authorName}
+                  {item.company ? `, ${item.company}` : ""}
                 </footer>
               </blockquote>
             ))}

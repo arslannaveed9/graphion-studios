@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search } from "lucide-react";
 import { planPriceRange } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 export type CatalogItem = {
   _id: unknown;
@@ -12,6 +13,9 @@ export type CatalogItem = {
   slug: string;
   shortDescription: string;
   heroImage?: string;
+  logo?: string;
+  icon?: string;
+  featured?: boolean;
   technologies?: string[];
   targetAudience?: string[];
   pricingPlans?: Array<{
@@ -37,12 +41,13 @@ export function CatalogDirectory({
   cta: string;
 }) {
   const [query, setQuery] = useState("");
-  const needle = query.trim().toLowerCase();
+  const needle = useDeferredValue(query.trim().toLowerCase());
   const plural = `${noun}s`;
 
   const visible = useMemo(() => {
-    if (!needle) return items;
-    return items.filter((item) => {
+    const ranked = [...items].sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+    if (!needle) return ranked;
+    return ranked.filter((item) => {
       const haystack = [
         item.name,
         item.shortDescription,
@@ -81,39 +86,92 @@ export function CatalogDirectory({
       </form>
 
       {visible.length ? (
-        <div className="grid gap-6">
-          {visible.map((item) => {
-            const range = planPriceRange(item.pricingPlans);
-            return (
-              <Link
-                key={String(item._id)}
-                href={`${hrefPrefix}/${item.slug}`}
-                className="surface group grid gap-6 overflow-hidden p-6 transition hover:-translate-y-1 md:grid-cols-2 md:p-8"
-              >
-                <div>
-                  <h2 className="text-4xl group-hover:text-copper">{item.name}</h2>
-                  <p className="mt-4 text-muted-foreground">{item.shortDescription}</p>
-                  {range ? <p className="mt-4 text-sm font-medium">{range}</p> : null}
-                  <p className="mt-6 text-sm font-semibold text-copper">{cta}</p>
-                </div>
-                {item.heroImage ? (
-                  <div className="relative min-h-48 overflow-hidden rounded-2xl">
-                    <Image
-                      src={item.heroImage}
-                      alt=""
-                      fill
-                      className="object-cover transition duration-700 group-hover:scale-[1.04]"
-                      sizes="50vw"
-                    />
-                  </div>
-                ) : null}
-              </Link>
-            );
-          })}
+        <div className="grid gap-5 md:grid-cols-2">
+          {visible.map((item, index) => (
+            <CatalogCard
+              key={String(item._id)}
+              item={item}
+              href={`${hrefPrefix}/${item.slug}`}
+              cta={cta}
+              featured={Boolean(item.featured) && index === 0 && !needle}
+              priority={index === 0}
+            />
+          ))}
         </div>
-      ) : (
+      ) : items.length ? (
         <p className="text-muted-foreground">No {plural} match that search.</p>
+      ) : (
+        <p className="text-muted-foreground">No published {plural} yet.</p>
       )}
     </div>
+  );
+}
+
+function CatalogCard({
+  item,
+  href,
+  cta,
+  featured,
+  priority,
+}: {
+  item: CatalogItem;
+  href: string;
+  cta: string;
+  featured: boolean;
+  priority: boolean;
+}) {
+  const range = planPriceRange(item.pricingPlans);
+  const chips = (item.technologies?.length ? item.technologies : item.targetAudience || []).slice(0, 4);
+
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "surface group flex h-full overflow-hidden transition duration-300 hover:-translate-y-1",
+        featured ? "flex-col md:col-span-2 md:grid md:grid-cols-2" : "flex-col",
+      )}
+    >
+      <div className={cn("relative overflow-hidden bg-muted/40", featured ? "aspect-[16/10] md:aspect-auto md:min-h-72" : "aspect-[16/10]")}>
+        {item.heroImage ? (
+          <Image
+            src={item.heroImage}
+            alt={item.name}
+            fill
+            priority={priority}
+            className="object-cover transition duration-700 group-hover:scale-[1.04]"
+            sizes={featured ? "(min-width: 768px) 50vw, 100vw" : "(min-width: 768px) 45vw, 100vw"}
+          />
+        ) : (
+          <div className="flex h-full min-h-48 items-end p-6">
+            <span className="font-display text-6xl text-copper/30">{item.name.slice(0, 1)}</span>
+          </div>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col p-5 md:p-7">
+        <div className="flex flex-wrap items-center gap-2">
+          {featured ? <p className="kicker">Featured</p> : null}
+          {item.logo ? (
+            <span className="relative size-7 overflow-hidden rounded-lg border border-border bg-card">
+              <Image src={item.logo} alt="" fill className="object-contain p-0.5" sizes="28px" />
+            </span>
+          ) : null}
+        </div>
+        <h2 className={cn("text-balance group-hover:text-copper", featured ? "mt-3 text-3xl md:text-5xl" : "mt-3 text-2xl md:text-3xl")}>
+          {item.name}
+        </h2>
+        <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground md:text-base">{item.shortDescription}</p>
+        {chips.length ? (
+          <ul className="mt-4 flex flex-wrap gap-1.5">
+            {chips.map((chip) => (
+              <li key={chip} className="rounded-full border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
+                {chip}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {range ? <p className="mt-4 text-sm font-medium">{range}</p> : null}
+        <p className="mt-auto pt-5 text-sm font-semibold text-copper">{cta}</p>
+      </div>
+    </Link>
   );
 }

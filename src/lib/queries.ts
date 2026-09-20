@@ -58,15 +58,17 @@ async function publishedFilter(): Promise<Record<string, unknown>> {
   return isEnabled ? {} : { status: "published" };
 }
 
-export const getServices = cache(async (options?: { featured?: boolean; limit?: number }) => {
+export const getServices = cache(async (options?: { featured?: boolean; limit?: number; listing?: boolean }) => {
   await connectDb();
   const filter: Record<string, unknown> = await publishedFilter();
   if (options?.featured) filter.featured = true;
-  const items = await Service.find(filter as never)
+  const query = Service.find(filter as never)
     .sort({ order: 1, name: 1 })
-    .limit(options?.limit || 100)
-    .lean();
-  return serialize(items);
+    .limit(options?.limit || 100);
+  if (options?.listing) {
+    query.select("name slug shortDescription heroImage icon technologies pricingPlans featured order");
+  }
+  return serialize(await query.lean());
 });
 
 export const getServiceBySlug = cache(async (slug: string) => {
@@ -75,15 +77,17 @@ export const getServiceBySlug = cache(async (slug: string) => {
   return item ? serialize(item) : null;
 });
 
-export const getProducts = cache(async (options?: { featured?: boolean; limit?: number }) => {
+export const getProducts = cache(async (options?: { featured?: boolean; limit?: number; listing?: boolean }) => {
   await connectDb();
   const filter: Record<string, unknown> = await publishedFilter();
   if (options?.featured) filter.featured = true;
-  const items = await SaaSProduct.find(filter as never)
+  const query = SaaSProduct.find(filter as never)
     .sort({ order: 1, name: 1 })
-    .limit(options?.limit || 100)
-    .lean();
-  return serialize(items);
+    .limit(options?.limit || 100);
+  if (options?.listing) {
+    query.select("name slug shortDescription heroImage logo technologies targetAudience pricingPlans featured order");
+  }
+  return serialize(await query.lean());
 });
 
 export const getProductBySlug = cache(async (slug: string) => {

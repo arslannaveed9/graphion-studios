@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Section, SectionIntro } from "@/components/site/section";
+import { Section } from "@/components/site/section";
 import { CatalogDirectory } from "@/components/site/catalog-directory";
+import { CatalogPageHeader } from "@/components/site/catalog";
 import { getServices } from "@/lib/queries";
 import { buildMetadata } from "@/lib/seo";
 import { safe } from "@/lib/safe";
@@ -12,13 +13,15 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function ServicesPage() {
-  const services = await safe(getServices, []);
+  const services = await safe(() => getServices({ listing: true }), []);
   return (
     <Section className="pt-16 md:pt-24">
-      <SectionIntro
+      <CatalogPageHeader
         kicker="Capabilities"
         heading="What we staff senior people against."
-        subheading="Unlimited services can be added from the admin. These are the ones currently published."
+        subheading="Platforms, product engineering, mobile, SaaS, cloud, and applied AI — scoped as packages, not guesswork."
+        count={services.length}
+        noun="service"
       />
       <CatalogDirectory items={services} noun="service" hrefPrefix="/services" cta="Explore →" />
     </Section>
