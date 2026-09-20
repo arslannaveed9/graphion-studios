@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { connectDb } from "@/lib/db";
 import { Service } from "@/models";
-import { requirePermission } from "@/lib/auth";
+import { hasPermission, requirePermission } from "@/lib/auth";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { CatalogImportExport } from "@/components/admin/catalog-import-export";
 import { deleteRecordAction } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
 
 export default async function ServicesAdminPage() {
-  await requirePermission("content:read");
+  const user = await requirePermission("content:read");
   await connectDb();
   const services = await Service.find().sort({ order: 1 }).lean();
   return (
     <div>
       <AdminHeader title="Services" actionHref="/admin/services/new" actionLabel="New service" />
+      <CatalogImportExport kind="services" canWrite={hasPermission(user.role, "content:write")} />
       <div className="divide-y divide-hairline border-y border-hairline">
         {services.map((service) => (
           <div key={String(service._id)} className="flex items-center justify-between gap-4 py-4">

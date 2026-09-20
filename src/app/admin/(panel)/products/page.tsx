@@ -1,18 +1,20 @@
 import Link from "next/link";
 import { connectDb } from "@/lib/db";
 import { SaaSProduct } from "@/models";
-import { requirePermission } from "@/lib/auth";
+import { hasPermission, requirePermission } from "@/lib/auth";
 import { AdminHeader } from "@/components/admin/admin-header";
+import { CatalogImportExport } from "@/components/admin/catalog-import-export";
 import { deleteRecordAction } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
 
 export default async function ProductsAdminPage() {
-  await requirePermission("content:read");
+  const user = await requirePermission("content:read");
   await connectDb();
   const products = await SaaSProduct.find().sort({ order: 1 }).lean();
   return (
     <div>
       <AdminHeader title="SaaS products" actionHref="/admin/products/new" actionLabel="New product" />
+      <CatalogImportExport kind="products" canWrite={hasPermission(user.role, "content:write")} />
       <div className="divide-y divide-hairline border-y border-hairline">
         {products.map((product) => (
           <div key={String(product._id)} className="flex items-center justify-between py-4">
