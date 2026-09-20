@@ -316,21 +316,44 @@ function ServicesBlock({
     <Section>
       <SectionIntro kicker={section.kicker} heading={section.heading} subheading={section.subheading} />
       <div className="grid gap-4 md:grid-cols-2">
-        {services.map((service, i) => (
-          <TiltCard key={String(service._id)} delay={i * 0.06}>
-            <Link href={`/services/${service.slug}`} className="surface group flex h-full flex-col p-6">
-              <div className="flex items-center justify-between gap-3">
-                <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10">
-                  <Icon name={String(service.icon || "Sparkles")} />
-                </span>
-                <span className="text-xs font-semibold tracking-[0.16em] text-copper">{String(i + 1).padStart(2, "0")}</span>
-              </div>
-              <h3 className="mt-5 text-2xl group-hover:text-copper">{String(service.name)}</h3>
-              <p className="mt-3 flex-1 text-sm leading-6 text-muted-foreground">{String(service.shortDescription)}</p>
-              <p className="mt-5 text-sm font-semibold text-copper">Explore →</p>
-            </Link>
-          </TiltCard>
-        ))}
+        {services.map((service, i) => {
+          const image = String(service.heroImage || "");
+          return (
+            <TiltCard key={String(service._id)} delay={i * 0.06}>
+              <Link href={`/services/${service.slug}`} className="surface group flex h-full flex-col overflow-hidden">
+                <div className="relative aspect-[16/10] overflow-hidden bg-muted/40">
+                  {image ? (
+                    <Image
+                      src={image}
+                      alt={String(service.name)}
+                      fill
+                      priority={i < 2}
+                      className="object-cover transition duration-700 group-hover:scale-[1.04]"
+                      sizes="(min-width: 768px) 45vw, 100vw"
+                    />
+                  ) : (
+                    <div className="flex h-full items-end p-6">
+                      <span className="font-display text-6xl text-copper/30">{String(service.name).slice(0, 1)}</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-x-0 top-0 flex items-start justify-between p-4">
+                    <span className="grid h-11 w-11 place-items-center rounded-2xl border border-white/10 bg-background/80 backdrop-blur">
+                      <Icon name={String(service.icon || "Sparkles")} />
+                    </span>
+                    <span className="rounded-full border border-white/10 bg-background/80 px-2.5 py-1 text-xs font-semibold tracking-[0.16em] text-copper backdrop-blur">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <h3 className="text-2xl group-hover:text-copper">{String(service.name)}</h3>
+                  <p className="mt-3 flex-1 text-sm leading-6 text-muted-foreground">{String(service.shortDescription)}</p>
+                  <p className="mt-5 text-sm font-semibold text-copper">Explore →</p>
+                </div>
+              </Link>
+            </TiltCard>
+          );
+        })}
       </div>
     </Section>
   );
