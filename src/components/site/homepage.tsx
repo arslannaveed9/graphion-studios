@@ -107,14 +107,11 @@ export function HomepageView({
                 <MarqueeStrip names={clientNames(main)} />
               </Section>
             );
-          case "services":
-            return (
-              <ServicesBlock
-                key={main.id}
-                section={main}
-                services={pick(services, main.featuredIds)}
-              />
-            );
+          case "services": {
+            const visible = pick(services, main.featuredIds);
+            if (!visible.length) return null;
+            return <ServicesBlock key={main.id} section={main} services={visible} />;
+          }
           case "why":
             return (
               <Section key={main.id}>
@@ -167,12 +164,14 @@ export function HomepageView({
                 </ol>
               </Section>
             );
-          case "products":
+          case "products": {
+            const visible = pick(products, main.featuredIds);
+            if (!visible.length) return null;
             return (
               <Section key={main.id}>
                 <SectionIntro kicker={main.kicker} heading={main.heading} subheading={main.subheading} />
                 <div className="grid gap-4">
-                  {pick(products, main.featuredIds).map((product, i) => (
+                  {visible.map((product, i) => (
                     <TiltCard key={String(product._id)} delay={i * 0.08}>
                       <Link href={`/products/${product.slug}`} className="surface group grid gap-6 overflow-hidden p-5 md:grid-cols-2 md:p-7">
                         <div>
@@ -198,13 +197,16 @@ export function HomepageView({
                 </div>
               </Section>
             );
-          case "portfolio":
+          }
+          case "portfolio": {
+            const visible = pick(projects, main.featuredIds);
+            if (!visible.length) return null;
             return (
               <Section key={main.id}>
                 <SectionIntro kicker={main.kicker} heading={main.heading} />
                 {stats?.items?.length ? <StatStrip items={stats.items} /> : null}
                 <div className="grid gap-6 md:grid-cols-3">
-                  {pick(projects, main.featuredIds).map((project, i) => (
+                  {visible.map((project, i) => (
                     <TiltCard key={String(project._id)} delay={i * 0.08}>
                       <Link href={`/portfolio/${project.slug}`} className="group block">
                         <div className="relative mb-4 aspect-[4/5] overflow-hidden rounded-3xl border border-border">
@@ -229,6 +231,7 @@ export function HomepageView({
                 </div>
               </Section>
             );
+          }
           case "stats":
             return (
               <Section key={main.id} compact>
@@ -282,10 +285,24 @@ function MarqueeStrip({ names }: { names: string[] }) {
   return <Marquee items={names} />;
 }
 
+function catalogId(value: unknown): string {
+  if (value == null) return "";
+  if (typeof value === "string" || typeof value === "number") return String(value);
+  if (typeof value === "object" && "$oid" in value) return String((value as { $oid: string }).$oid);
+  return String(value);
+}
+
 function pick(items: Array<Record<string, unknown>>, ids?: string[]) {
-  if (!ids?.length) return items.slice(0, 6);
-  const map = new Map(items.map((item) => [String(item._id), item]));
-  return ids.map((id) => map.get(id)).filter(Boolean) as Array<Record<string, unknown>>;
+  if (!items.length) return [];
+  const wanted = (ids || []).map(catalogId).filter(Boolean);
+  if (!wanted.length) return items;
+
+  const map = new Map(items.map((item) => [catalogId(item._id ?? item.id), item]));
+  const selected = wanted.map((id) => map.get(id)).filter(Boolean) as Array<Record<string, unknown>>;
+  if (!selected.length) return items;
+
+  const seen = new Set(selected.map((item) => catalogId(item._id ?? item.id)));
+  return [...selected, ...items.filter((item) => !seen.has(catalogId(item._id ?? item.id)))];
 }
 
 function ServicesBlock({

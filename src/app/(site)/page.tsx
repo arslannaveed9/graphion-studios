@@ -10,6 +10,8 @@ import {
 import { safe } from "@/lib/safe";
 import type { HomepageSection } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   const [homepage, services, products, projects, testimonials, technologies] = await Promise.all([
     safe(getHomepage, null),

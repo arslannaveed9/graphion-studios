@@ -110,7 +110,9 @@ function FeaturedPicker({
   return (
     <div className="space-y-2">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <p className="text-xs text-muted-foreground">Leave empty to show the latest published items automatically.</p>
+      <p className="text-xs text-muted-foreground">
+        Optional order. Selected items appear first; every other published item still shows on the homepage.
+      </p>
       <div className="flex flex-wrap gap-2">
         {options.length ? (
           options.map((option) => {

@@ -127,7 +127,7 @@ export async function saveServiceAction(formData: FormData) {
     slug,
     published: status === "published",
   });
-  await afterSave(["/services", `/services/${slug}`, "/admin/services"]);
+  await afterSave(["/", "/services", `/services/${slug}`, "/admin/services"]);
   redirect(`/admin/services/${doc?._id || id}`);
 }
 
@@ -176,7 +176,7 @@ export async function saveProductAction(formData: FormData) {
     slug,
     published: status === "published",
   });
-  await afterSave(["/products", `/products/${slug}`, "/admin/products"]);
+  await afterSave(["/", "/products", `/products/${slug}`, "/admin/products"]);
   redirect(`/admin/products/${doc?._id || id}`);
 }
 
@@ -221,7 +221,7 @@ export async function saveProjectAction(formData: FormData) {
     slug,
     published: status === "published",
   });
-  await afterSave(["/portfolio", `/portfolio/${slug}`, "/admin/portfolio"]);
+  await afterSave(["/", "/portfolio", `/portfolio/${slug}`, "/admin/portfolio"]);
   redirect(`/admin/portfolio/${doc?._id || id}`);
 }
 
