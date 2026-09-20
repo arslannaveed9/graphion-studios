@@ -3,6 +3,8 @@ import { connectDb } from "@/lib/db";
 import { BlogPost, Page, PortfolioProject, SaaSProduct, Service, SiteSettings } from "@/models";
 import { absoluteUrl } from "@/lib/seo";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
     await connectDb();

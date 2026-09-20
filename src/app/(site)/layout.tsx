@@ -4,6 +4,8 @@ import { getFooter, getNavigation, getSettings } from "@/lib/queries";
 import { safe } from "@/lib/safe";
 import type { FooterColumn, NavItem } from "@/types";
 
+export const dynamic = "force-dynamic";
+
 const fallbackNav: NavItem[] = [
   { id: "work", label: "Work", href: "/portfolio", order: 1, isEnabled: true },
   { id: "services", label: "Services", href: "/services", order: 2, isEnabled: true },

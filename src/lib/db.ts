@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { connection } from "next/server";
 
 declare global {
   var mongooseCache:
@@ -17,6 +18,8 @@ const globalCache = globalThis.mongooseCache ?? {
 globalThis.mongooseCache = globalCache;
 
 export async function connectDb() {
+  await connection();
+
   if (globalCache.conn) return globalCache.conn;
 
   const uri = process.env.MONGODB_URI;
