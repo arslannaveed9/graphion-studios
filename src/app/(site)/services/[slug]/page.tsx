@@ -203,7 +203,7 @@ export default async function ServiceDetailPage({
       {plans.length ? (
         <Section id="pricing" className="scroll-mt-24">
           <SectionIntro kicker="Pricing" heading="Packages, not guesswork." subheading={service.pricingNotes} compact />
-          <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid items-stretch gap-4 md:grid-cols-3">
             {plans.map((plan) => (
               <Price key={String(plan._id || plan.name)} plan={plan} />
             ))}

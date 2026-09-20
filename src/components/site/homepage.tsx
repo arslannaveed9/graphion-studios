@@ -339,7 +339,7 @@ export function Price({
   const amount = formatCurrency(plan.price ?? null, plan.currency || "USD");
   return (
     <div
-      className={`surface flex h-full flex-col p-6 ${plan.isRecommended ? "border-primary/50 bg-primary/5" : ""}`}
+      className={`surface flex h-full min-w-0 flex-col p-6 ${plan.isRecommended ? "border-primary/50 bg-primary/5" : ""}`}
     >
       {plan.isRecommended ? <p className="kicker mb-3">Recommended</p> : null}
       <h3 className="text-2xl">{plan.name}</h3>
@@ -347,7 +347,7 @@ export function Price({
         {plan.customPriceLabel || amount || "Custom"}
         {amount ? <span className="ml-1 text-base font-medium text-muted-foreground">{billingLabel(plan.billingType || "")}</span> : null}
       </p>
-      <ul className="mt-6 space-y-2 text-sm">
+      <ul className="mt-6 min-w-0 space-y-2 text-sm break-words">
         {(plan.features || []).map((feature) => (
           <li key={feature}>— {feature}</li>
         ))}

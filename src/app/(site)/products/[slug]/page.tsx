@@ -188,7 +188,7 @@ export default async function ProductPage({
       {plans.length ? (
         <Section id="pricing" className="scroll-mt-24">
           <SectionIntro kicker="Pricing" heading="Plans that match how teams buy." compact />
-          <div className="grid items-stretch gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid items-stretch gap-4 md:grid-cols-3">
             {plans.map((plan) => (
               <Price key={String((plan as { name: string }).name)} plan={plan as never} />
             ))}
