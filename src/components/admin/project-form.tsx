@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SeoFields, StringListField, JsonListField } from "@/components/admin/fields";
+import { ImageField, ImageListField } from "@/components/admin/image-field";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 export function ProjectForm({ project }: { project?: Record<string, unknown> }) {
@@ -17,9 +18,9 @@ export function ProjectForm({ project }: { project?: Record<string, unknown> }) 
       <RichTextEditor name="description" value={String(project?.description || "")} />
       <Textarea name="challenges" defaultValue={String(project?.challenges || "")} placeholder="Challenges" className="rounded-none" />
       <Textarea name="solution" defaultValue={String(project?.solution || "")} placeholder="Solution" className="rounded-none" />
-      <Input name="heroImage" defaultValue={String(project?.heroImage || "")} placeholder="Hero image" className="rounded-none" />
+      <ImageField name="heroImage" label="Hero image" defaultValue={String(project?.heroImage || "")} />
       <StringListField name="technologies" label="Technologies" value={project?.technologies as string[]} />
-      <StringListField name="images" label="Images" value={project?.images as string[]} />
+      <ImageListField name="images" label="Images" value={project?.images as string[]} />
       <JsonListField name="results" label="Results" value={(project?.results as Array<Record<string, string>>) || []} keys={[{ key: "label", label: "Label" }, { key: "value", label: "Value" }]} />
       <Input name="testimonialQuote" defaultValue={String(project?.testimonialQuote || "")} placeholder="Testimonial" className="rounded-none" />
       <Input name="testimonialAuthor" defaultValue={String(project?.testimonialAuthor || "")} placeholder="Testimonial author" className="rounded-none" />

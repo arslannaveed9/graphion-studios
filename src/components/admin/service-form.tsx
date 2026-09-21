@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { JsonListField, PricingField, SeoFields, StringListField } from "@/components/admin/fields";
+import { ImageField, ImageListField } from "@/components/admin/image-field";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { enablePreviewAction } from "@/actions/admin";
 import type { ServiceDoc } from "@/models/service";
@@ -50,9 +51,8 @@ export function ServiceForm({
           <Label>Icon (Lucide name)</Label>
           <Input name="icon" defaultValue={service?.icon} className="rounded-none" />
         </div>
-        <div className="space-y-2">
-          <Label>Hero image URL</Label>
-          <Input name="heroImage" defaultValue={service?.heroImage} className="rounded-none" />
+        <div className="space-y-2 md:col-span-2">
+          <ImageField name="heroImage" label="Hero image" defaultValue={service?.heroImage} />
         </div>
       </div>
       <JsonListField name="features" label="Features" value={service?.features || []} keys={[{ key: "title", label: "Title" }, { key: "description", label: "Description", textarea: true }]} />
@@ -60,7 +60,7 @@ export function ServiceForm({
       <JsonListField name="process" label="Process" value={service?.process || []} keys={[{ key: "title", label: "Title" }, { key: "description", label: "Description", textarea: true }]} />
       <JsonListField name="faqs" label="FAQs" value={service?.faqs || []} keys={[{ key: "question", label: "Question" }, { key: "answer", label: "Answer", textarea: true }]} />
       <StringListField name="technologies" label="Technologies" value={service?.technologies} />
-      <StringListField name="gallery" label="Gallery image URLs" value={service?.gallery} />
+      <ImageListField name="gallery" label="Gallery images" value={service?.gallery} />
       <PricingField name="pricingPlans" value={(service?.pricingPlans || []) as Array<Record<string, unknown>>} />
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="enableCustomProject" defaultChecked={service?.enableCustomProject !== false} />

@@ -6,6 +6,7 @@ import { deleteRecordAction, saveSimpleAction } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageField } from "@/components/admin/image-field";
 
 export default async function TestimonialsPage() {
   await requirePermission("content:write");
@@ -33,6 +34,7 @@ export default async function TestimonialsPage() {
         <Input name="field_authorName" placeholder="Name" className="rounded-none" required />
         <Input name="field_authorTitle" placeholder="Title" className="rounded-none" />
         <Input name="field_company" placeholder="Company" className="rounded-none" />
+        <ImageField name="field_avatar" label="Photo" />
         <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="field_featured" value="true" /> Featured</label>
         <input type="hidden" name="payload" value='{"isActive":true,"featured":false}' />
         <Button className="rounded-none">Add</Button>

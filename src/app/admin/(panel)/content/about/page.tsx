@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { JsonListField } from "@/components/admin/fields";
+import { ImageField } from "@/components/admin/image-field";
 import { serialize } from "@/lib/format";
 
 export default async function AboutAdminPage() {
@@ -25,7 +26,7 @@ export default async function AboutAdminPage() {
         <JsonListField name="values" label="Values" value={about?.values || []} keys={[{ key: "title", label: "Title" }, { key: "description", label: "Description" }]} />
         <JsonListField name="whyUs" label="Why us" value={about?.whyUs || []} keys={[{ key: "title", label: "Title" }, { key: "description", label: "Description" }]} />
         <JsonListField name="stats" label="Stats" value={about?.stats || []} keys={[{ key: "label", label: "Label" }, { key: "value", label: "Value" }]} />
-        <Input name="heroImage" defaultValue={about?.heroImage} placeholder="Hero image" className="rounded-none" />
+        <ImageField name="heroImage" label="Hero image" defaultValue={about?.heroImage} />
         <Input name="ctaHeading" defaultValue={about?.ctaHeading} className="rounded-none" />
         <Textarea name="ctaBody" defaultValue={about?.ctaBody} className="rounded-none" />
         <Input name="ctaLabel" defaultValue={about?.ctaLabel} className="rounded-none" />

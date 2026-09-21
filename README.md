@@ -55,4 +55,4 @@ Almost all public content is database-driven: services and pricing, SaaS product
 
 ## Email and uploads
 
-Without `RESEND_API_KEY` or SMTP settings, enquiry emails are logged in development and skipped rather than crashing. Media is stored on disk under `public/uploads`.
+Without `RESEND_API_KEY` or SMTP settings, enquiry emails are logged in development and skipped rather than crashing. Media is stored on disk under `uploads/` (and `public/uploads`). The app user must be able to write those folders.

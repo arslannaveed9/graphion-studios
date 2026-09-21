@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { ImageField } from "@/components/admin/image-field";
 
 export function JsonListField({
   name,
@@ -282,9 +283,8 @@ export function SeoFields({ seo }: { seo?: Record<string, unknown> }) {
         <Label className="text-xs text-muted-foreground">OG title</Label>
         <Input name="ogTitle" defaultValue={String(seo?.ogTitle || "")} className="rounded-xl" />
       </div>
-      <div className="space-y-1.5">
-        <Label className="text-xs text-muted-foreground">OG image URL</Label>
-        <Input name="ogImage" defaultValue={String(seo?.ogImage || "")} className="rounded-xl" />
+      <div className="space-y-1.5 md:col-span-2">
+        <ImageField name="ogImage" label="OG image" defaultValue={String(seo?.ogImage || "")} />
       </div>
       <div className="space-y-1.5 md:col-span-2">
         <Label className="text-xs text-muted-foreground">OG description</Label>

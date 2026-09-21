@@ -528,16 +528,20 @@ export async function saveUserAction(formData: FormData) {
   redirect("/admin/settings/users");
 }
 
-export async function uploadMediaAction(formData: FormData) {
+export async function uploadMediaAction(_prev: unknown, formData: FormData) {
   await requirePermission("media:manage");
   const file = formData.get("file");
   if (!(file instanceof File) || !file.size) {
-    throw new Error("Choose a file to upload.");
+    return { error: "Choose a file to upload." };
   }
-  const media = await uploadMediaFile(file, {
-    alt: str(formData, "alt"),
-    caption: str(formData, "caption"),
-  });
+  try {
+    await uploadMediaFile(file, {
+      alt: str(formData, "alt"),
+      caption: str(formData, "caption"),
+    });
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Upload failed." };
+  }
   revalidatePath("/admin/media");
   redirect("/admin/media");
 }

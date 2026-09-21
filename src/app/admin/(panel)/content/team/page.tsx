@@ -6,6 +6,7 @@ import { deleteRecordAction, saveSimpleAction } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageField } from "@/components/admin/image-field";
 
 export default async function TeamPage() {
   await requirePermission("content:write");
@@ -33,7 +34,7 @@ export default async function TeamPage() {
         <input type="hidden" name="redirectTo" value="/admin/content/team" />
         <Input name="field_name" placeholder="Name" className="rounded-none" required />
         <Input name="field_position" placeholder="Position" className="rounded-none" required />
-        <Input name="field_image" placeholder="Image URL" className="rounded-none" />
+        <ImageField name="field_image" label="Photo" />
         <Textarea name="field_bio" placeholder="Bio" className="rounded-none" />
         <input type="hidden" name="payload" value='{"isActive":true,"skills":[],"socialLinks":[]}' />
         <Button className="rounded-none">Add member</Button>

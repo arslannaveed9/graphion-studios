@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { JsonListField, PricingField, SeoFields, StringListField } from "@/components/admin/fields";
+import { ImageField, ImageListField } from "@/components/admin/image-field";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { enablePreviewAction } from "@/actions/admin";
 
@@ -30,8 +31,8 @@ export function ProductForm({
       </div>
       <Textarea name="shortDescription" required defaultValue={String(product?.shortDescription || "")} className="rounded-none" />
       <RichTextEditor name="fullDescription" value={String(product?.fullDescription || "")} />
-      <Input name="heroImage" defaultValue={String(product?.heroImage || "")} placeholder="Hero image URL" className="rounded-none" />
-      <Input name="logo" defaultValue={String(product?.logo || "")} placeholder="Logo URL" className="rounded-none" />
+      <ImageField name="heroImage" label="Hero image" defaultValue={String(product?.heroImage || "")} />
+      <ImageField name="logo" label="Logo" defaultValue={String(product?.logo || "")} />
       <JsonListField name="features" label="Features" value={(product?.features as Array<Record<string, string>>) || []} keys={[{ key: "title", label: "Title" }, { key: "description", label: "Description" }]} />
       <JsonListField name="benefits" label="Benefits" value={(product?.benefits as Array<Record<string, string>>) || []} keys={[{ key: "title", label: "Title" }, { key: "description", label: "Description" }]} />
       <JsonListField name="useCases" label="Use cases" value={(product?.useCases as Array<Record<string, string>>) || []} keys={[{ key: "title", label: "Title" }, { key: "description", label: "Description" }]} />
@@ -39,7 +40,7 @@ export function ProductForm({
       <StringListField name="targetAudience" label="Target audience" value={product?.targetAudience as string[]} />
       <StringListField name="integrations" label="Integrations" value={product?.integrations as string[]} />
       <StringListField name="technologies" label="Technologies" value={product?.technologies as string[]} />
-      <StringListField name="screenshots" label="Screenshots" value={product?.screenshots as string[]} />
+      <ImageListField name="screenshots" label="Screenshots" value={product?.screenshots as string[]} />
       <PricingField name="pricingPlans" value={(product?.pricingPlans as Array<Record<string, unknown>>) || []} />
       <Input name="ctaLabel" defaultValue={String(product?.ctaLabel || "")} placeholder="CTA label" className="rounded-none" />
       <Input name="ctaHref" defaultValue={String(product?.ctaHref || "")} placeholder="CTA href" className="rounded-none" />

@@ -5,6 +5,7 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { saveSimpleAction } from "@/actions/admin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ImageField } from "@/components/admin/image-field";
 
 export default async function TaxonomiesPage() {
   await requirePermission("content:write");
@@ -20,7 +21,7 @@ export default async function TaxonomiesPage() {
       <AdminHeader title="Categories, tags, authors" />
       <SimpleCreate collection="blog-category" title="Category" items={categories as unknown as Array<Record<string, unknown>>} fields={["name", "slug"]} />
       <SimpleCreate collection="blog-tag" title="Tag" items={tags as unknown as Array<Record<string, unknown>>} fields={["name", "slug"]} />
-      <SimpleCreate collection="author" title="Author" items={authors as unknown as Array<Record<string, unknown>>} fields={["name", "slug", "role"]} />
+      <SimpleCreate collection="author" title="Author" items={authors as unknown as Array<Record<string, unknown>>} fields={["name", "slug", "role"]} imageField="avatar" />
     </div>
   );
 }
@@ -30,11 +31,13 @@ function SimpleCreate({
   title,
   items,
   fields,
+  imageField,
 }: {
   collection: string;
   title: string;
   items: Array<Record<string, unknown>>;
   fields: string[];
+  imageField?: string;
 }) {
   return (
     <section>
@@ -50,6 +53,7 @@ function SimpleCreate({
         {fields.map((field) => (
           <Input key={field} name={`field_${field}`} placeholder={field} className="w-40 rounded-none" />
         ))}
+        {imageField ? <ImageField name={`field_${imageField}`} label="Photo" /> : null}
         <input
           type="hidden"
           name="payload"

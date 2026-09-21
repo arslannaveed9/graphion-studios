@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SeoFields } from "@/components/admin/fields";
+import { ImageField } from "@/components/admin/image-field";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { serialize } from "@/lib/format";
 
@@ -27,7 +28,7 @@ export function PostForm({
       <Input name="slug" defaultValue={String(post?.slug || "")} placeholder="Slug" className="rounded-none" />
       <Textarea name="excerpt" defaultValue={String(post?.excerpt || "")} placeholder="Excerpt" className="rounded-none" />
       <RichTextEditor name="content" value={String(post?.content || "")} />
-      <Input name="featuredImage" defaultValue={String(post?.featuredImage || "")} placeholder="Featured image URL" className="rounded-none" />
+      <ImageField name="featuredImage" label="Featured image" defaultValue={String(post?.featuredImage || "")} />
       <select name="author" defaultValue={String(post?.author || "")} className="h-9 border border-input bg-background px-2 text-sm">
         <option value="">Author</option>
         {authors.map((author) => (

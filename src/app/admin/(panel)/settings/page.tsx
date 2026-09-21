@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { JsonListField, SeoFields } from "@/components/admin/fields";
+import { ImageField } from "@/components/admin/image-field";
 import { serialize } from "@/lib/format";
 
 export default async function SettingsPage() {
@@ -19,8 +20,8 @@ export default async function SettingsPage() {
       <form action={saveSettingsAction} className="grid max-w-2xl gap-4">
         <Input name="companyName" defaultValue={settings?.companyName} placeholder="Company name" className="rounded-none" />
         <Input name="tagline" defaultValue={settings?.tagline} placeholder="Tagline" className="rounded-none" />
-        <Input name="logo" defaultValue={settings?.logo} placeholder="Logo URL" className="rounded-none" />
-        <Input name="favicon" defaultValue={settings?.favicon} placeholder="Favicon URL" className="rounded-none" />
+        <ImageField name="logo" label="Logo" defaultValue={settings?.logo} />
+        <ImageField name="favicon" label="Favicon" defaultValue={settings?.favicon} />
         <Input name="email" defaultValue={settings?.email} placeholder="Email" className="rounded-none" />
         <Input name="phone" defaultValue={settings?.phone} placeholder="Phone" className="rounded-none" />
         <Input name="whatsapp" defaultValue={settings?.whatsapp} placeholder="WhatsApp" className="rounded-none" />

@@ -23,6 +23,7 @@ export function sanitizeRichText(html: string) {
       span: ["class"],
     },
     allowedSchemes: ["http", "https", "mailto", "tel"],
+    allowProtocolRelative: false,
     transformTags: {
       a: sanitizeHtml.simpleTransform("a", { rel: "noopener noreferrer" }),
     },

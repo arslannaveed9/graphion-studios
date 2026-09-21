@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ImageField } from "@/components/admin/image-field";
 import { cn } from "@/lib/utils";
 import type { HomepageSection } from "@/types";
 
@@ -325,7 +326,11 @@ export function HomepageEditor({
                   ) : null}
 
                   {section.type === "hero" ? (
-                    <Field label="Optional media URL" value={section.mediaUrl} onChange={(mediaUrl) => patch(section.id, { mediaUrl })} />
+                    <ImageField
+                      label="Hero image"
+                      value={section.mediaUrl || ""}
+                      onChange={(mediaUrl) => patch(section.id, { mediaUrl })}
+                    />
                   ) : null}
 
                   {section.type === "services" ? (
