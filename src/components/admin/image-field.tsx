@@ -12,6 +12,9 @@ export async function uploadImage(file: File) {
   const response = await fetch("/api/admin/media", { method: "POST", body });
   const data = (await response.json().catch(() => ({}))) as { url?: string; error?: string };
   if (!response.ok || !data.url) {
+    if (response.status === 413) {
+      throw new Error("This file is too large for the web server. Raise Nginx client_max_body_size to 12m and reload Nginx.");
+    }
     throw new Error(data.error || `Upload failed (${response.status})`);
   }
   return data.url;
