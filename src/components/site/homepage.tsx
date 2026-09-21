@@ -295,14 +295,12 @@ function catalogId(value: unknown): string {
 function pick(items: Array<Record<string, unknown>>, ids?: string[]) {
   if (!items.length) return [];
   const wanted = (ids || []).map(catalogId).filter(Boolean);
-  if (!wanted.length) return items;
-
-  const map = new Map(items.map((item) => [catalogId(item._id ?? item.id), item]));
-  const selected = wanted.map((id) => map.get(id)).filter(Boolean) as Array<Record<string, unknown>>;
-  if (!selected.length) return items;
-
-  const seen = new Set(selected.map((item) => catalogId(item._id ?? item.id)));
-  return [...selected, ...items.filter((item) => !seen.has(catalogId(item._id ?? item.id)))];
+  if (wanted.length) {
+    const map = new Map(items.map((item) => [catalogId(item._id ?? item.id), item]));
+    const selected = wanted.map((id) => map.get(id)).filter(Boolean) as Array<Record<string, unknown>>;
+    if (selected.length) return selected;
+  }
+  return items.filter((item) => Boolean(item.featured));
 }
 
 function ServicesBlock({

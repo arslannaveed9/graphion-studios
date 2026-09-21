@@ -16,10 +16,6 @@ const schema = z.object({
   SMTP_USER: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
   SMTP_SECURE: z.string().optional(),
-  CLOUDINARY_CLOUD_NAME: z.string().optional(),
-  CLOUDINARY_API_KEY: z.string().optional(),
-  CLOUDINARY_API_SECRET: z.string().optional(),
-  CLOUDINARY_FOLDER: z.string().default("graphion"),
   PREVIEW_SECRET: z.string().optional(),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });
@@ -43,10 +39,6 @@ function readEnv(): Env {
     SMTP_USER: process.env.SMTP_USER,
     SMTP_PASSWORD: process.env.SMTP_PASSWORD,
     SMTP_SECURE: process.env.SMTP_SECURE,
-    CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
-    CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
-    CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
-    CLOUDINARY_FOLDER: process.env.CLOUDINARY_FOLDER,
     PREVIEW_SECRET: process.env.PREVIEW_SECRET,
     NODE_ENV: process.env.NODE_ENV,
   });

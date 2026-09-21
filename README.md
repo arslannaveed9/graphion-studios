@@ -8,7 +8,7 @@ Production CMS + marketing platform for an IT services and SaaS company.
 - MongoDB + Mongoose
 - Tailwind CSS + shadcn/ui
 - Auth via encrypted httpOnly sessions, bcrypt passwords, role-based permissions
-- Cloudinary for media (local `public/uploads` fallback in development)
+- Local media uploads in `public/uploads`
 - Resend or SMTP for notifications
 
 ## Local setup
@@ -55,4 +55,4 @@ Almost all public content is database-driven: services and pricing, SaaS product
 
 ## Email and uploads
 
-Without `RESEND_API_KEY` or SMTP settings, enquiry emails are logged in development and skipped rather than crashing. Without Cloudinary, uploads work locally only and are not suitable for Vercel production.
+Without `RESEND_API_KEY` or SMTP settings, enquiry emails are logged in development and skipped rather than crashing. Media is stored on disk under `public/uploads`.

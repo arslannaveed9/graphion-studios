@@ -4,7 +4,7 @@ import { getModel } from "@/models/shared";
 export interface MediaDoc {
   url: string;
   publicId?: string;
-  provider: "cloudinary" | "local";
+  provider: "local" | "cloudinary";
   alt?: string;
   caption?: string;
   width?: number;
@@ -19,7 +19,7 @@ const schema = new Schema<MediaDoc>(
   {
     url: { type: String, required: true },
     publicId: String,
-    provider: { type: String, enum: ["cloudinary", "local"], default: "cloudinary" },
+    provider: { type: String, enum: ["local", "cloudinary"], default: "local" },
     alt: String,
     caption: String,
     width: Number,
