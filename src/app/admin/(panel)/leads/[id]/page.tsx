@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import { connectDb } from "@/lib/db";
 import { Lead } from "@/models";
 import { requirePermission } from "@/lib/auth";
-import { AdminHeader } from "@/components/admin/admin-header";
 import { updateLeadAction } from "@/actions/admin";
+import { AdminHeader } from "@/components/admin/admin-header";
+import { LeadActions } from "@/components/admin/lead-actions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { leadStatuses } from "@/config/site";
@@ -54,6 +55,9 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         <Textarea name="note" placeholder="Internal note" className="rounded-none" />
         <Button className="rounded-none">Update lead</Button>
       </form>
+      <div className="mt-6">
+        <LeadActions id={id} status={lead.status} redirectTo="/admin/leads" />
+      </div>
       <div className="mt-8 space-y-3">
         {lead.notes?.map((note, i) => (
           <div key={i} className="border-t border-hairline pt-3 text-sm">

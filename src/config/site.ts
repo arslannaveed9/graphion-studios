@@ -34,6 +34,7 @@ export const leadStatuses = [
   "won",
   "lost",
   "archived",
+  "spam",
 ] as const;
 
 export const roles = ["super_admin", "admin", "editor", "viewer"] as const;

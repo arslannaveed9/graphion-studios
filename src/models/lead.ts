@@ -1,5 +1,6 @@
 import { Schema, type Types } from "mongoose";
 import { getModel } from "@/models/shared";
+import { leadStatuses } from "@/config/site";
 import type { InquiryType, LeadStatus } from "@/types";
 
 export interface LeadNote {
@@ -54,16 +55,7 @@ const schema = new Schema<LeadDoc>(
     attachmentUrl: String,
     status: {
       type: String,
-      enum: [
-        "new",
-        "contacted",
-        "qualified",
-        "proposal_sent",
-        "negotiation",
-        "won",
-        "lost",
-        "archived",
-      ],
+      enum: [...leadStatuses],
       default: "new",
       index: true,
     },

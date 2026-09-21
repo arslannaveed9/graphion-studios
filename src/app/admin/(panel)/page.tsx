@@ -12,7 +12,7 @@ export default async function AdminDashboard() {
     SaaSProduct.countDocuments(),
     BlogPost.countDocuments(),
     PortfolioProject.countDocuments(),
-    Lead.countDocuments(),
+    Lead.countDocuments({ status: { $ne: "spam" } }),
     Lead.countDocuments({ status: "new" }),
     Promise.all([
       Service.countDocuments({ status: "draft" }),
@@ -20,7 +20,7 @@ export default async function AdminDashboard() {
       BlogPost.countDocuments({ status: "draft" }),
     ]).then((n) => n.reduce((a, b) => a + b, 0)),
   ]);
-  const recentLeads = await Lead.find()
+  const recentLeads = await Lead.find({ status: { $ne: "spam" } })
     .populate("service", "name")
     .populate("product", "name")
     .sort({ createdAt: -1 })

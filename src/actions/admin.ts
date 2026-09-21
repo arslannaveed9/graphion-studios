@@ -37,6 +37,7 @@ import {
   Testimonial,
 } from "@/models";
 import type { ContentStatus } from "@/types";
+import { leadStatuses } from "@/config/site";
 
 function json<T>(formData: FormData, key: string, fallback: T): T {
   const raw = formData.get(key);
@@ -469,6 +470,9 @@ export async function updateLeadAction(formData: FormData) {
   const session = await requireSession();
   const note = str(formData, "note");
   const status = str(formData, "status");
+  if (!leadStatuses.includes(status as (typeof leadStatuses)[number])) {
+    throw new Error("Invalid lead status");
+  }
   await Lead.findByIdAndUpdate(id, {
     $set: { status },
     ...(note
@@ -477,6 +481,31 @@ export async function updateLeadAction(formData: FormData) {
   });
   revalidatePath(`/admin/leads/${id}`);
   revalidatePath("/admin/leads");
+}
+
+export async function markLeadSpamAction(formData: FormData) {
+  await requirePermission("leads:manage");
+  await connectDb();
+  const id = str(formData, "id");
+  const redirectTo = str(formData, "redirectTo") || "/admin/leads";
+  const session = await requireSession();
+  await Lead.findByIdAndUpdate(id, {
+    $set: { status: "spam" },
+    $push: { notes: { body: "Marked as spam", authorName: session.name, createdAt: new Date() } },
+  });
+  revalidatePath("/admin/leads");
+  revalidatePath(`/admin/leads/${id}`);
+  redirect(redirectTo);
+}
+
+export async function deleteLeadAction(formData: FormData) {
+  await requirePermission("leads:manage");
+  await connectDb();
+  const id = str(formData, "id");
+  const redirectTo = str(formData, "redirectTo") || "/admin/leads";
+  await Lead.findByIdAndDelete(id);
+  revalidatePath("/admin/leads");
+  redirect(redirectTo);
 }
 
 export async function saveUserAction(formData: FormData) {
