@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { NextResponse } from "next/server";
-import { resolveUploadFile } from "@/lib/media";
+import { resolveUploadFile } from "@/lib/upload-paths";
 
 const TYPES: Record<string, string> = {
   jpg: "image/jpeg",
