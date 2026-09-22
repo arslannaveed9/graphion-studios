@@ -4,6 +4,18 @@ export function toSlug(value: string) {
   return slugify(value, { lower: true, strict: true, trim: true });
 }
 
+export function firstImage(...sources: Array<unknown>) {
+  for (const source of sources) {
+    if (typeof source === "string" && source.trim()) return source.trim();
+    if (Array.isArray(source)) {
+      for (const item of source) {
+        if (typeof item === "string" && item.trim()) return item.trim();
+      }
+    }
+  }
+  return "";
+}
+
 export function serialize<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }

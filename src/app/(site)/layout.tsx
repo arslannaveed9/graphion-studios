@@ -23,7 +23,11 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <>
-      <SiteHeader items={(nav?.items as NavItem[]) || fallbackNav} />
+      <SiteHeader
+        items={(nav?.items as NavItem[]) || fallbackNav}
+        logoSrc={settings?.logo}
+        companyName={settings?.companyName}
+      />
       <main className="flex-1">{children}</main>
       <SiteFooter
         columns={((footer?.columns as FooterColumn[]) || []).length ? (footer!.columns as FooterColumn[]) : [
@@ -36,6 +40,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         newsletterBody={footer?.newsletterBody}
         email={settings?.email}
         address={settings?.address}
+        logoSrc={settings?.logo}
+        companyName={settings?.companyName}
       />
     </>
   );

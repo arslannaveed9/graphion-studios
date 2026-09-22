@@ -48,13 +48,32 @@ const schema = new Schema<SiteSettingsDoc>(
 
 export const SiteSettings = getModel<SiteSettingsDoc>("SiteSettings", schema);
 
-export interface EmailSettingsDoc {
+export type EmailProviderMode = "auto" | "smtp" | "resend";
+
+export interface EmailTemplateFields {
+  contactAdminSubject?: string;
+  contactAdminHtml?: string;
+  contactCustomerSubject?: string;
+  contactCustomerHtml?: string;
+  inquiryAdminSubject?: string;
+  inquiryAdminHtml?: string;
+  inquiryCustomerSubject?: string;
+  inquiryCustomerHtml?: string;
+}
+
+export interface EmailSettingsDoc extends EmailTemplateFields {
   notifyOnContact: boolean;
   notifyOnInquiry: boolean;
   sendCustomerConfirmation: boolean;
   fromName?: string;
   fromEmail?: string;
   notifyEmail?: string;
+  provider: EmailProviderMode;
+  smtpHost?: string;
+  smtpPort?: number;
+  smtpUser?: string;
+  smtpPassword?: string;
+  smtpSecure: boolean;
 }
 
 const emailSchema = new Schema<EmailSettingsDoc>(
@@ -65,6 +84,20 @@ const emailSchema = new Schema<EmailSettingsDoc>(
     fromName: String,
     fromEmail: String,
     notifyEmail: String,
+    provider: { type: String, enum: ["auto", "smtp", "resend"], default: "auto" },
+    smtpHost: String,
+    smtpPort: { type: Number, default: 587 },
+    smtpUser: String,
+    smtpPassword: { type: String, select: false },
+    smtpSecure: { type: Boolean, default: false },
+    contactAdminSubject: String,
+    contactAdminHtml: String,
+    contactCustomerSubject: String,
+    contactCustomerHtml: String,
+    inquiryAdminSubject: String,
+    inquiryAdminHtml: String,
+    inquiryCustomerSubject: String,
+    inquiryCustomerHtml: String,
   },
   { timestamps: true },
 );

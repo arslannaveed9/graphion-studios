@@ -9,6 +9,7 @@ const TYPES: Record<string, string> = {
   webp: "image/webp",
   gif: "image/gif",
   svg: "image/svg+xml",
+  ico: "image/x-icon",
 };
 
 export async function GET(_request: Request, { params }: { params: Promise<{ filename: string }> }) {

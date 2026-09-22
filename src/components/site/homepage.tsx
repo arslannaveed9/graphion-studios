@@ -9,7 +9,7 @@ import { Marquee } from "@/components/motion/marquee";
 import { TechCarousel } from "@/components/motion/tech-carousel";
 import { CtaButton } from "@/components/site/cta-button";
 import { Section, SectionIntro } from "@/components/site/section";
-import { billingLabel, formatCurrency } from "@/lib/format";
+import { billingLabel, firstImage, formatCurrency } from "@/lib/format";
 import type { HomepageSection } from "@/types";
 
 function Icon({ name, className }: { name?: string; className?: string }) {
@@ -315,7 +315,7 @@ function ServicesBlock({
       <SectionIntro kicker={section.kicker} heading={section.heading} subheading={section.subheading} />
       <div className="grid gap-4 md:grid-cols-2">
         {services.map((service, i) => {
-          const image = String(service.heroImage || "");
+          const image = firstImage(service.heroImage, service.gallery);
           return (
             <TiltCard key={String(service._id)} delay={i * 0.06}>
               <Link href={`/services/${service.slug}`} className="surface group flex h-full flex-col overflow-hidden">

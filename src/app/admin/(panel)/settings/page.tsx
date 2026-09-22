@@ -20,8 +20,14 @@ export default async function SettingsPage() {
       <form action={saveSettingsAction} className="grid max-w-2xl gap-4">
         <Input name="companyName" defaultValue={settings?.companyName} placeholder="Company name" className="rounded-none" />
         <Input name="tagline" defaultValue={settings?.tagline} placeholder="Tagline" className="rounded-none" />
-        <ImageField name="logo" label="Logo" defaultValue={settings?.logo} />
-        <ImageField name="favicon" label="Favicon" defaultValue={settings?.favicon} />
+        <div className="space-y-1">
+          <ImageField name="logo" label="Website logo" defaultValue={settings?.logo} contain />
+          <p className="text-xs text-muted-foreground">Shown in the header, footer, and admin. PNG, SVG, WebP, or JPG. Upload, then save settings.</p>
+        </div>
+        <div className="space-y-1">
+          <ImageField name="favicon" label="Favicon" defaultValue={settings?.favicon} contain />
+          <p className="text-xs text-muted-foreground">Browser tab icon. Square PNG, SVG, or ICO works best. Upload, then save settings.</p>
+        </div>
         <Input name="email" defaultValue={settings?.email} placeholder="Email" className="rounded-none" />
         <Input name="phone" defaultValue={settings?.phone} placeholder="Phone" className="rounded-none" />
         <Input name="whatsapp" defaultValue={settings?.whatsapp} placeholder="WhatsApp" className="rounded-none" />

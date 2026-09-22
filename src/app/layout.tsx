@@ -9,6 +9,8 @@ import { buildMetadata, jsonLd } from "@/lib/seo";
 import { safe } from "@/lib/safe";
 import "./globals.css";
 
+export const dynamic = "force-dynamic";
+
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
@@ -28,6 +30,7 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await safe(getSettings, null);
   const seo = (settings?.defaultSeo || {}) as { title?: string; description?: string; ogImage?: string };
+  const favicon = settings?.favicon;
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
     ...buildMetadata({
@@ -40,7 +43,13 @@ export async function generateMetadata(): Promise<Metadata> {
       default: seo.title || `${brand.name} — ${brand.tagline}`,
       template: `%s · ${settings?.companyName || brand.name}`,
     },
-    icons: settings?.favicon ? [{ rel: "icon", url: settings.favicon }] : undefined,
+    icons: favicon
+      ? {
+          icon: [{ url: favicon }],
+          shortcut: favicon,
+          apple: [{ url: favicon }],
+        }
+      : undefined,
   };
 }
 
@@ -55,6 +64,7 @@ export default async function RootLayout({
     "@type": "Organization",
     name: settings?.companyName || brand.name,
     url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+    logo: settings?.logo,
     email: settings?.email,
     telephone: settings?.phone,
     address: settings?.address,

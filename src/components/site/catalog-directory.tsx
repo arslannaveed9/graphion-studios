@@ -4,7 +4,7 @@ import { useDeferredValue, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search } from "lucide-react";
-import { planPriceRange } from "@/lib/format";
+import { firstImage, planPriceRange } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 export type CatalogItem = {
@@ -13,6 +13,8 @@ export type CatalogItem = {
   slug: string;
   shortDescription: string;
   heroImage?: string;
+  gallery?: string[];
+  screenshots?: string[];
   logo?: string;
   icon?: string;
   featured?: boolean;
@@ -122,6 +124,7 @@ function CatalogCard({
 }) {
   const range = planPriceRange(item.pricingPlans);
   const chips = (item.technologies?.length ? item.technologies : item.targetAudience || []).slice(0, 4);
+  const image = firstImage(item.heroImage, item.gallery, item.screenshots);
 
   return (
     <Link
@@ -132,9 +135,9 @@ function CatalogCard({
       )}
     >
       <div className={cn("relative overflow-hidden bg-muted/40", featured ? "aspect-[16/10] md:aspect-auto md:min-h-72" : "aspect-[16/10]")}>
-        {item.heroImage ? (
+        {image ? (
           <Image
-            src={item.heroImage}
+            src={image}
             alt={item.name}
             fill
             priority={priority}

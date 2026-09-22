@@ -6,11 +6,12 @@ import { redirect } from "next/navigation";
 import { connectDb } from "@/lib/db";
 import { requirePermission, requireSession, hashPassword } from "@/lib/auth";
 import { sanitizeRichText } from "@/lib/sanitize";
-import { toSlug, readingMinutes } from "@/lib/format";
+import { toSlug, readingMinutes, firstImage } from "@/lib/format";
 import { parseKeywords } from "@/lib/validators";
 import { upsertSearchDocument, removeSearchDocument } from "@/lib/search";
 import { bustPublicSite } from "@/lib/cache";
 import { deleteMedia, uploadMediaFile } from "@/lib/media";
+import { buildTemplatedEmail, getEmailConfig, sendEmail } from "@/lib/email";
 import {
   AboutPage,
   AdminUser,
@@ -88,6 +89,7 @@ export async function saveServiceAction(formData: FormData) {
   const name = str(formData, "name");
   const slug = toSlug(str(formData, "slug") || name);
   const status = statusOf(formData);
+  const gallery = json<string[]>(formData, "gallery", []);
   const payload = {
     name,
     slug,
@@ -96,8 +98,8 @@ export async function saveServiceAction(formData: FormData) {
     problem: str(formData, "problem"),
     solution: str(formData, "solution"),
     icon: str(formData, "icon"),
-    heroImage: str(formData, "heroImage"),
-    gallery: json<string[]>(formData, "gallery", []),
+    heroImage: str(formData, "heroImage") || firstImage(gallery),
+    gallery,
     features: json(formData, "features", []),
     technologies: json<string[]>(formData, "technologies", []),
     benefits: json(formData, "benefits", []),
@@ -415,7 +417,8 @@ export async function saveSettingsAction(formData: FormData) {
     },
     { upsert: true },
   );
-  await afterSave(["/", "/admin/settings"]);
+  await afterSave(["/", "/admin/settings", "/admin", "/admin/login"]);
+  revalidatePath("/admin", "layout");
   redirect("/admin/settings");
 }
 
@@ -448,19 +451,88 @@ export async function saveAboutAction(formData: FormData) {
 export async function saveEmailSettingsAction(formData: FormData) {
   await requirePermission("settings:manage");
   await connectDb();
+  const providerRaw = str(formData, "provider");
+  const provider = (["auto", "smtp", "resend"].includes(providerRaw) ? providerRaw : "auto") as
+    | "auto"
+    | "smtp"
+    | "resend";
+  const smtpPassword = str(formData, "smtpPassword");
+  const payload: Record<string, unknown> = {
+    notifyOnContact: bool(formData, "notifyOnContact"),
+    notifyOnInquiry: bool(formData, "notifyOnInquiry"),
+    sendCustomerConfirmation: bool(formData, "sendCustomerConfirmation"),
+    fromName: str(formData, "fromName"),
+    fromEmail: str(formData, "fromEmail"),
+    notifyEmail: str(formData, "notifyEmail"),
+    provider,
+    smtpHost: str(formData, "smtpHost"),
+    smtpPort: Number(str(formData, "smtpPort") || 587),
+    smtpUser: str(formData, "smtpUser"),
+    smtpSecure: bool(formData, "smtpSecure"),
+    contactAdminSubject: str(formData, "contactAdminSubject"),
+    contactAdminHtml: str(formData, "contactAdminHtml"),
+    contactCustomerSubject: str(formData, "contactCustomerSubject"),
+    contactCustomerHtml: str(formData, "contactCustomerHtml"),
+    inquiryAdminSubject: str(formData, "inquiryAdminSubject"),
+    inquiryAdminHtml: str(formData, "inquiryAdminHtml"),
+    inquiryCustomerSubject: str(formData, "inquiryCustomerSubject"),
+    inquiryCustomerHtml: str(formData, "inquiryCustomerHtml"),
+  };
+  if (smtpPassword) payload.smtpPassword = smtpPassword;
+  await EmailSettings.findOneAndUpdate({}, payload, { upsert: true });
+  redirect("/admin/settings/email?saved=1");
+}
+
+export async function resetEmailTemplatesAction() {
+  await requirePermission("settings:manage");
+  await connectDb();
   await EmailSettings.findOneAndUpdate(
     {},
     {
-      notifyOnContact: bool(formData, "notifyOnContact"),
-      notifyOnInquiry: bool(formData, "notifyOnInquiry"),
-      sendCustomerConfirmation: bool(formData, "sendCustomerConfirmation"),
-      fromName: str(formData, "fromName"),
-      fromEmail: str(formData, "fromEmail"),
-      notifyEmail: str(formData, "notifyEmail"),
+      $unset: {
+        contactAdminSubject: 1,
+        contactAdminHtml: 1,
+        contactCustomerSubject: 1,
+        contactCustomerHtml: 1,
+        inquiryAdminSubject: 1,
+        inquiryAdminHtml: 1,
+        inquiryCustomerSubject: 1,
+        inquiryCustomerHtml: 1,
+      },
     },
     { upsert: true },
   );
-  redirect("/admin/settings/email");
+  redirect("/admin/settings/email?saved=1");
+}
+
+export async function sendTestEmailAction(_prev: unknown, formData: FormData) {
+  await requirePermission("settings:manage");
+  const to = str(formData, "testTo");
+  if (!to) return { error: "Enter a recipient email address." };
+  try {
+    const config = await getEmailConfig();
+    const mail = buildTemplatedEmail(
+      "Email test from {{siteName}}",
+      `<p style="margin:0 0 16px;font-size:16px;line-height:1.65;color:#2c241c;font-family:Georgia,'Times New Roman',serif">Your outbound mail is working.</p>
+<p style="margin:0 0 18px;font-size:15px;line-height:1.7;color:#6f6559;font-family:Georgia,'Times New Roman',serif">Provider mode: <strong style="color:#2c241c">{{provider}}</strong>. Contact and enquiry forms will use the same branded layout.</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border:1px solid #e4ddd2;background:#fbf8f2">
+  <tr>
+    <td style="width:4px;background:#a66b2e;font-size:0;line-height:0">&nbsp;</td>
+    <td style="padding:16px 18px;font-size:14px;line-height:1.6;color:#2c241c;font-family:Georgia,'Times New Roman',serif">Save your SMTP settings, then submit a contact form to see the full lead template.</td>
+  </tr>
+</table>`,
+      {
+        siteName: config.fromName || "Graphion Studios",
+        siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "",
+        provider: config.provider,
+      },
+      { wrapTitle: "Email delivery test", eyebrow: "Systems check", preheader: "SMTP / outbound mail test from your CMS" },
+    );
+    await sendEmail({ to, subject: mail.subject, html: mail.html });
+    return { ok: true as const, message: `Test email sent to ${to}.` };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : "Could not send test email." };
+  }
 }
 
 export async function updateLeadAction(formData: FormData) {

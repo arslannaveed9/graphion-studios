@@ -12,7 +12,17 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { SessionUser } from "@/types";
 
-export function AdminShell({ children, user }: { children: React.ReactNode; user: SessionUser }) {
+export function AdminShell({
+  children,
+  user,
+  logoSrc,
+  companyName,
+}: {
+  children: React.ReactNode;
+  user: SessionUser;
+  logoSrc?: string;
+  companyName?: string;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -25,7 +35,7 @@ export function AdminShell({ children, user }: { children: React.ReactNode; user
         )}
       >
         <div className="flex items-center justify-between px-5 py-5">
-          <Logo compact />
+          <Logo compact src={logoSrc} name={companyName} />
           <span className="font-mono text-[10px] tracking-[0.2em] text-copper">CMS</span>
         </div>
         <nav className="space-y-6 px-3 pb-8">

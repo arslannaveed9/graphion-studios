@@ -8,16 +8,24 @@ import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/site/logo";
 import { ThemeToggle } from "@/components/site/theme-toggle";
 
-export function LoginForm({ from }: { from?: string }) {
+export function LoginForm({
+  from,
+  logoSrc,
+  companyName,
+}: {
+  from?: string;
+  logoSrc?: string;
+  companyName?: string;
+}) {
   const [state, action, pending] = useActionState(loginAction, null);
   return (
     <div className="surface relative mx-auto w-full max-w-md p-8">
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <Logo />
+      <Logo src={logoSrc} name={companyName} />
       <h1 className="mt-8 text-4xl">Studio access</h1>
-      <p className="mt-2 text-sm text-muted-foreground">CMS for Graphion Studios.</p>
+      <p className="mt-2 text-sm text-muted-foreground">CMS for {companyName || "Graphion Studios"}.</p>
       <form action={action} className="mt-8 space-y-4">
         <input type="hidden" name="from" value={from || "/admin"} />
         <div className="space-y-2">

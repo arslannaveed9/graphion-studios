@@ -6,17 +6,11 @@ import { RichText } from "@/components/site/rich-text";
 import { Section, SectionIntro } from "@/components/site/section";
 import { CtaButton } from "@/components/site/cta-button";
 import { TechCarousel } from "@/components/motion/tech-carousel";
-import {
-  CatalogBreadcrumb,
-  CatalogHero,
-  FaqList,
-  FeatureGrid,
-  visiblePlans,
-} from "@/components/site/catalog";
+import { CatalogBreadcrumb, CatalogHero, FaqList, FeatureGrid, ScreenshotStrip, visiblePlans } from "@/components/site/catalog";
 import { getServiceBySlug, getTestimonials } from "@/lib/queries";
 import { buildMetadata, jsonLd } from "@/lib/seo";
 import { createCaptchaChallenge } from "@/lib/captcha";
-import { enabledPlanNames, planPriceRange } from "@/lib/format";
+import { enabledPlanNames, firstImage, planPriceRange } from "@/lib/format";
 import { safe } from "@/lib/safe";
 
 export async function generateMetadata({
@@ -27,11 +21,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const service = await safe(() => getServiceBySlug(slug), null);
   if (!service) return { title: "Service" };
+  const cover = firstImage(service.heroImage, service.gallery);
   return buildMetadata({
     title: service.name,
     description: service.shortDescription,
     path: `/services/${slug}`,
-    image: service.heroImage,
+    image: cover,
     seo: service.seo as never,
   });
 }
@@ -54,6 +49,8 @@ export default async function ServiceDetailPage({
   const plans = visiblePlans(service.pricingPlans);
   const packages = enabledPlanNames(plans);
   const range = planPriceRange(plans);
+  const cover = firstImage(service.heroImage, service.gallery);
+  const gallery = (service.gallery || []).filter(Boolean);
   const relatedIds = (service.relatedTestimonialIds || []).map((id) => String(id));
   const quotes = relatedIds.length
     ? testimonials.filter((item) => relatedIds.includes(String(item._id))).slice(0, 2)
@@ -64,7 +61,7 @@ export default async function ServiceDetailPage({
     "@type": "Service",
     name: service.name,
     description: service.shortDescription,
-    image: service.heroImage,
+    image: cover,
     offers: plans.map((plan) => ({
       "@type": "Offer",
       name: plan.name,
@@ -81,7 +78,7 @@ export default async function ServiceDetailPage({
         kicker="Service"
         title={service.name}
         description={service.shortDescription}
-        image={service.heroImage}
+        image={cover}
         imageAlt={service.name}
         chips={(service.technologies || []).slice(0, 5)}
         meta={range ? <p className="text-sm font-medium">{range}</p> : null}
@@ -96,6 +93,13 @@ export default async function ServiceDetailPage({
           </>
         }
       />
+
+      {gallery.length ? (
+        <Section>
+          <SectionIntro kicker="Gallery" heading="From this engagement." compact />
+          <ScreenshotStrip images={gallery} alt={service.name} />
+        </Section>
+      ) : null}
 
       {service.fullDescription || service.problem || service.solution ? (
         <Section>

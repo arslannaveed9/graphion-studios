@@ -16,6 +16,9 @@ const EXT_BY_TYPE: Record<string, string> = {
   "image/webp": "webp",
   "image/gif": "gif",
   "image/svg+xml": "svg",
+  "image/x-icon": "ico",
+  "image/vnd.microsoft.icon": "ico",
+  "image/ico": "ico",
 };
 
 const EXT_BY_NAME: Record<string, string> = {
@@ -25,6 +28,7 @@ const EXT_BY_NAME: Record<string, string> = {
   webp: "webp",
   gif: "gif",
   svg: "svg",
+  ico: "ico",
 };
 
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -40,6 +44,7 @@ function sniffExt(file: File, buffer: Buffer) {
   if (buffer.slice(0, 3).toString("ascii") === "GIF") return "gif";
   const head = buffer.slice(0, 256).toString("utf8").toLowerCase();
   if (head.includes("<svg") || head.includes("<!doctype svg")) return "svg";
+  if (buffer[0] === 0x00 && buffer[1] === 0x00 && buffer[2] === 0x01 && buffer[3] === 0x00) return "ico";
   return null;
 }
 
@@ -51,7 +56,7 @@ export async function uploadMediaFile(file: File, meta?: { alt?: string; caption
   const buffer = Buffer.from(await file.arrayBuffer());
   const ext = sniffExt(file, buffer);
   if (!ext) {
-    throw new Error("Use a JPG, PNG, WebP, GIF, or SVG image.");
+    throw new Error("Use a JPG, PNG, WebP, GIF, SVG, or ICO image.");
   }
 
   await connectDb();

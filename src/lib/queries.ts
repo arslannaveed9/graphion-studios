@@ -66,7 +66,7 @@ export const getServices = cache(async (options?: { featured?: boolean; limit?: 
     .sort({ order: 1, name: 1 })
     .limit(options?.limit || 100);
   if (options?.listing) {
-    query.select("name slug shortDescription heroImage icon technologies pricingPlans featured order");
+    query.select("name slug shortDescription heroImage gallery icon technologies pricingPlans featured order");
   }
   return serialize(await query.lean());
 });
@@ -85,7 +85,7 @@ export const getProducts = cache(async (options?: { featured?: boolean; limit?: 
     .sort({ order: 1, name: 1 })
     .limit(options?.limit || 100);
   if (options?.listing) {
-    query.select("name slug shortDescription heroImage logo technologies targetAudience pricingPlans featured order");
+    query.select("name slug shortDescription heroImage logo screenshots technologies targetAudience pricingPlans featured order");
   }
   return serialize(await query.lean());
 });

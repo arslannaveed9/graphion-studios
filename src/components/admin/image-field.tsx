@@ -26,12 +26,14 @@ export function ImageField({
   defaultValue,
   value,
   onChange,
+  contain,
 }: {
   name?: string;
   label: string;
   defaultValue?: string;
   value?: string;
   onChange?: (url: string) => void;
+  contain?: boolean;
 }) {
   const [inner, setInner] = useState(defaultValue || "");
   const [error, setError] = useState("");
@@ -83,7 +85,7 @@ export function ImageField({
       </div>
       {url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt="" className="mt-1 h-24 w-auto max-w-full border border-hairline object-cover" />
+        <img src={url} alt="" className={`mt-1 h-24 w-auto max-w-full border border-hairline ${contain ? "object-contain bg-muted/40 p-2" : "object-cover"}`} />
       ) : null}
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>

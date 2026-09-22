@@ -55,4 +55,4 @@ Almost all public content is database-driven: services and pricing, SaaS product
 
 ## Email and uploads
 
-Without `RESEND_API_KEY` or SMTP settings, enquiry emails are logged in development and skipped rather than crashing. Media is stored on disk under `uploads/` (and `public/uploads`). The app user must be able to write those folders. If uploads return HTTP 413, raise the reverse-proxy limit (Nginx: `client_max_body_size 12m;` inside the `server` block, then `nginx -t && systemctl reload nginx`).
+Configure SMTP, notification recipients, and form email templates in **Admin → Settings → Email**. Environment variables (`RESEND_API_KEY`, `SMTP_*`) still work as fallbacks when the CMS provider is set to Auto. Without a provider, enquiry emails are logged in development and skipped rather than crashing. Media is stored on disk under `uploads/` (and `public/uploads`). The app user must be able to write those folders. If uploads return HTTP 413, raise the reverse-proxy limit (Nginx: `client_max_body_size 12m;` inside the `server` block, then `nginx -t && systemctl reload nginx`).

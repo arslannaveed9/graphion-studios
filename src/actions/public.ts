@@ -8,7 +8,9 @@ import { Service } from "@/models/service";
 import { SaaSProduct } from "@/models/saas-product";
 import { contactSchema, inquirySchema, newsletterSchema } from "@/lib/validators";
 import { clientIp, enforceRateLimit } from "@/lib/rate-limit";
-import { getEmailConfig, inquiryEmailHtml, sendEmail } from "@/lib/email";
+import { buildTemplatedEmail, getEmailConfig, sendEmail } from "@/lib/email";
+import { brand } from "@/config/site";
+import { siteUrl } from "@/lib/env";
 import { uploadMediaFile } from "@/lib/media";
 import { createCaptchaChallenge, verifyCaptcha, type CaptchaChallenge } from "@/lib/captcha";
 
@@ -89,29 +91,43 @@ export async function submitContactAction(_: unknown, formData: FormData): Promi
   });
 
   const config = await getEmailConfig();
+  const siteName = config.fromName || brand.name;
+  const vars = {
+    siteName,
+    siteUrl: siteUrl(),
+    name: parsed.data.name,
+    email: parsed.data.email,
+    phone: parsed.data.phone || "—",
+    company: parsed.data.company || "—",
+    message: parsed.data.message,
+  };
+
   if (config.notifyOnContact && config.notifyEmail) {
+    const mail = buildTemplatedEmail(
+      config.templates.contactAdminSubject,
+      config.templates.contactAdminHtml,
+      vars,
+      { wrapTitle: "New contact submission", eyebrow: "Lead desk", preheader: `New contact from ${parsed.data.name}` },
+    );
     await sendEmail({
       to: config.notifyEmail,
-      subject: `New contact from ${parsed.data.name}`,
+      subject: mail.subject,
       replyTo: parsed.data.email,
-      html: inquiryEmailHtml({
-        title: "New contact submission",
-        fields: parsed.data,
-      }),
+      html: mail.html,
     }).catch(() => undefined);
   }
 
   if (config.sendCustomerConfirmation) {
+    const mail = buildTemplatedEmail(
+      config.templates.contactCustomerSubject,
+      config.templates.contactCustomerHtml,
+      vars,
+      { wrapTitle: "Thanks — we’ll be in touch", eyebrow: "Studio reply", preheader: `Thanks ${parsed.data.name}, we received your message` },
+    );
     await sendEmail({
       to: parsed.data.email,
-      subject: "We received your message — Graphion Studios",
-      html: inquiryEmailHtml({
-        title: "Thanks — we’ll be in touch",
-        fields: {
-          Name: parsed.data.name,
-          Note: "Our team reviews every enquiry personally. Expect a reply within one business day.",
-        },
-      }),
+      subject: mail.subject,
+      html: mail.html,
     }).catch(() => undefined);
   }
 
@@ -206,27 +222,54 @@ export async function submitInquiryAction(_: unknown, formData: FormData): Promi
   });
 
   const config = await getEmailConfig();
+  const subjectName = service?.name || product?.name || parsed.data.name;
+  const siteName = config.fromName || brand.name;
+  const inquiryType = parsed.data.inquiryType.replace(/_/g, " ");
+  const selectedPackage = parsed.data.selectedPackage || "";
+  const vars = {
+    siteName,
+    siteUrl: siteUrl(),
+    name: parsed.data.name,
+    email: parsed.data.email,
+    phone: parsed.data.phone || "—",
+    company: parsed.data.company || "—",
+    message: parsed.data.message || "—",
+    inquiryType,
+    subjectName,
+    selectedPackage: selectedPackage || "—",
+    enquirySummary: selectedPackage ? `${inquiryType} · ${selectedPackage}` : inquiryType,
+    budget: parsed.data.budget || "—",
+    timeline: parsed.data.timeline || "—",
+    source,
+    additionalInfo: parsed.data.additionalInfo || "",
+  };
+
   if (config.notifyOnInquiry && config.notifyEmail) {
+    const mail = buildTemplatedEmail(
+      config.templates.inquiryAdminSubject,
+      config.templates.inquiryAdminHtml,
+      vars,
+      { wrapTitle: "New project enquiry", eyebrow: "Lead desk", preheader: `New ${inquiryType} for ${subjectName}` },
+    );
     await sendEmail({
       to: config.notifyEmail,
-      subject: `New ${parsed.data.inquiryType.replace("_", " ")} — ${service?.name || product?.name || parsed.data.name}`,
+      subject: mail.subject,
       replyTo: parsed.data.email,
-      html: inquiryEmailHtml({
-        title: "New project enquiry",
-        fields: {
-          Name: parsed.data.name,
-          Email: parsed.data.email,
-          Phone: parsed.data.phone,
-          Company: parsed.data.company,
-          Service: service?.name,
-          Product: product?.name,
-          Package: parsed.data.selectedPackage,
-          Budget: parsed.data.budget,
-          Timeline: parsed.data.timeline,
-          Source: source,
-          Message: parsed.data.message,
-        },
-      }),
+      html: mail.html,
+    }).catch(() => undefined);
+  }
+
+  if (config.sendCustomerConfirmation) {
+    const mail = buildTemplatedEmail(
+      config.templates.inquiryCustomerSubject,
+      config.templates.inquiryCustomerHtml,
+      vars,
+      { wrapTitle: "Thanks for your enquiry", eyebrow: "Studio reply", preheader: `Thanks ${parsed.data.name}, we received your enquiry about ${subjectName}` },
+    );
+    await sendEmail({
+      to: parsed.data.email,
+      subject: mail.subject,
+      html: mail.html,
     }).catch(() => undefined);
   }
 
