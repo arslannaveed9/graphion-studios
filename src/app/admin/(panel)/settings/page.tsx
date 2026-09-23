@@ -22,11 +22,11 @@ export default async function SettingsPage() {
         <Input name="tagline" defaultValue={settings?.tagline} placeholder="Tagline" className="rounded-none" />
         <div className="space-y-1">
           <ImageField name="logo" label="Website logo" defaultValue={settings?.logo} contain />
-          <p className="text-xs text-muted-foreground">Shown in the header, footer, and admin. PNG, SVG, WebP, or JPG. Upload, then save settings.</p>
+          <p className="text-xs text-muted-foreground">This image is the live site header and footer logo (and admin). PNG, SVG, WebP, or JPG. Upload, then click Save settings.</p>
         </div>
         <div className="space-y-1">
           <ImageField name="favicon" label="Favicon" defaultValue={settings?.favicon} contain />
-          <p className="text-xs text-muted-foreground">Browser tab icon. Square PNG, SVG, or ICO works best. Upload, then save settings.</p>
+          <p className="text-xs text-muted-foreground">Browser tab icon. If empty, the website logo is used. Square PNG, SVG, or ICO works best. Upload, then click Save settings.</p>
         </div>
         <Input name="email" defaultValue={settings?.email} placeholder="Email" className="rounded-none" />
         <Input name="phone" defaultValue={settings?.phone} placeholder="Phone" className="rounded-none" />

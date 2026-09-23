@@ -30,7 +30,7 @@ const geistMono = Geist_Mono({
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await safe(getSettings, null);
   const seo = (settings?.defaultSeo || {}) as { title?: string; description?: string; ogImage?: string };
-  const favicon = settings?.favicon;
+  const icon = settings?.favicon || settings?.logo;
   return {
     metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
     ...buildMetadata({
@@ -43,11 +43,11 @@ export async function generateMetadata(): Promise<Metadata> {
       default: seo.title || `${brand.name} — ${brand.tagline}`,
       template: `%s · ${settings?.companyName || brand.name}`,
     },
-    icons: favicon
+    icons: icon
       ? {
-          icon: [{ url: favicon }],
-          shortcut: favicon,
-          apple: [{ url: favicon }],
+          icon: [{ url: icon }],
+          shortcut: icon,
+          apple: [{ url: icon }],
         }
       : undefined,
   };

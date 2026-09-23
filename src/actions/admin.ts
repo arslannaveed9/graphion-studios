@@ -418,6 +418,7 @@ export async function saveSettingsAction(formData: FormData) {
     { upsert: true },
   );
   await afterSave(["/", "/admin/settings", "/admin", "/admin/login"]);
+  revalidatePath("/", "layout");
   revalidatePath("/admin", "layout");
   redirect("/admin/settings");
 }
