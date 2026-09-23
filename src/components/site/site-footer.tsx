@@ -12,6 +12,7 @@ export function SiteFooter({
   email,
   address,
   logoSrc,
+  logoSrcLight,
   companyName,
 }: {
   columns: FooterColumn[];
@@ -22,13 +23,14 @@ export function SiteFooter({
   email?: string;
   address?: string;
   logoSrc?: string;
+  logoSrcLight?: string;
   companyName?: string;
 }) {
   return (
     <footer className="border-t border-border/80 bg-background">
       <div className="mx-auto grid max-w-6xl gap-12 px-6 py-16 md:grid-cols-12 md:px-8">
         <div className="md:col-span-4">
-          <Logo src={logoSrc} name={companyName} />
+          <Logo src={logoSrc} srcLight={logoSrcLight} name={companyName} />
           <p className="mt-6 max-w-xs text-sm leading-6 text-muted-foreground">
             Custom platforms, product engineering, and SaaS we operate ourselves.
           </p>

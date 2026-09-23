@@ -6,7 +6,12 @@ import { safe } from "@/lib/safe";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const [user, settings] = await Promise.all([requireSession(), safe(getSettings, null)]);
   return (
-    <AdminShell user={user} logoSrc={settings?.logo} companyName={settings?.companyName}>
+    <AdminShell
+      user={user}
+      logoSrc={settings?.logo}
+      logoSrcLight={settings?.logoLight}
+      companyName={settings?.companyName}
+    >
       {children}
     </AdminShell>
   );

@@ -13,11 +13,13 @@ export function SiteHeader({
   items,
   ctaLabel = "Start a project",
   logoSrc,
+  logoSrcLight,
   companyName,
 }: {
   items: NavItem[];
   ctaLabel?: string;
   logoSrc?: string;
+  logoSrcLight?: string;
   companyName?: string;
 }) {
   const [open, setOpen] = useState(false);
@@ -25,8 +27,8 @@ export function SiteHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3.5 md:px-8 md:py-4">
-        <Logo src={logoSrc} name={companyName} />
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-3 md:px-8">
+        <Logo src={logoSrc} srcLight={logoSrcLight} name={companyName} />
         <nav className="hidden items-center gap-7 lg:flex">
           {visible.map((item) => (
             <div key={item.id} className="group relative">

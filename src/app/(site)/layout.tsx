@@ -26,6 +26,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <SiteHeader
         items={(nav?.items as NavItem[]) || fallbackNav}
         logoSrc={settings?.logo}
+        logoSrcLight={settings?.logoLight}
         companyName={settings?.companyName}
       />
       <main className="flex-1">{children}</main>
@@ -41,6 +42,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         email={settings?.email}
         address={settings?.address}
         logoSrc={settings?.logo}
+        logoSrcLight={settings?.logoLight}
         companyName={settings?.companyName}
       />
     </>

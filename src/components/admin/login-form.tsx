@@ -11,10 +11,12 @@ import { ThemeToggle } from "@/components/site/theme-toggle";
 export function LoginForm({
   from,
   logoSrc,
+  logoSrcLight,
   companyName,
 }: {
   from?: string;
   logoSrc?: string;
+  logoSrcLight?: string;
   companyName?: string;
 }) {
   const [state, action, pending] = useActionState(loginAction, null);
@@ -23,7 +25,7 @@ export function LoginForm({
       <div className="absolute right-4 top-4">
         <ThemeToggle />
       </div>
-      <Logo src={logoSrc} name={companyName} />
+      <Logo src={logoSrc} srcLight={logoSrcLight} name={companyName} />
       <h1 className="mt-8 text-4xl">Studio access</h1>
       <p className="mt-2 text-sm text-muted-foreground">CMS for {companyName || "Graphion Studios"}.</p>
       <form action={action} className="mt-8 space-y-4">

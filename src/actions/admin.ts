@@ -400,6 +400,7 @@ export async function saveSettingsAction(formData: FormData) {
       companyName: str(formData, "companyName"),
       tagline: str(formData, "tagline"),
       logo: str(formData, "logo"),
+      logoLight: str(formData, "logoLight"),
       favicon: str(formData, "favicon"),
       email: str(formData, "email"),
       phone: str(formData, "phone"),

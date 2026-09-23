@@ -16,11 +16,13 @@ export function AdminShell({
   children,
   user,
   logoSrc,
+  logoSrcLight,
   companyName,
 }: {
   children: React.ReactNode;
   user: SessionUser;
   logoSrc?: string;
+  logoSrcLight?: string;
   companyName?: string;
 }) {
   const pathname = usePathname();
@@ -35,7 +37,7 @@ export function AdminShell({
         )}
       >
         <div className="flex items-center justify-between px-5 py-5">
-          <Logo compact src={logoSrc} name={companyName} />
+          <Logo compact src={logoSrc} srcLight={logoSrcLight} name={companyName} />
           <span className="font-mono text-[10px] tracking-[0.2em] text-copper">CMS</span>
         </div>
         <nav className="space-y-6 px-3 pb-8">

@@ -11,7 +11,12 @@ export default async function LoginPage({
   const settings = await safe(getSettings, null);
   return (
     <div className="flex min-h-screen items-center justify-center px-6">
-      <LoginForm from={from} logoSrc={settings?.logo} companyName={settings?.companyName} />
+      <LoginForm
+        from={from}
+        logoSrc={settings?.logo}
+        logoSrcLight={settings?.logoLight}
+        companyName={settings?.companyName}
+      />
     </div>
   );
 }
